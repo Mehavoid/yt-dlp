@@ -241,18 +241,22 @@ class AnvatoIE(InfoExtractor):
         if self.__server_time is not None:
             return self.__server_time
 
-        self.__server_time = int(self._download_json(
-            self._api_prefix(access_key) + 'server_time?anvack=' + access_key, video_id,
-            note='Fetching server time')['server_time'])
+        self.__server_time = int(
+            self._download_json(
+                f'{self._api_prefix(access_key)}server_time?anvack={access_key}',
+                video_id,
+                note='Fetching server time',
+            )['server_time']
+        )
 
         return self.__server_time
 
     def _api_prefix(self, access_key):
-        return 'https://tkx2-%s.anvato.net/rest/v2/' % ('prod' if 'prod' in access_key else 'stage')
+        return f"https://tkx2-{'prod' if 'prod' in access_key else 'stage'}.anvato.net/rest/v2/"
 
     def _get_video_json(self, access_key, video_id):
         # See et() in anvplayer.min.js, which is an alias of getVideoJSON()
-        video_data_url = self._api_prefix(access_key) + 'mcp/video/%s?anvack=%s' % (video_id, access_key)
+        video_data_url = f'{self._api_prefix(access_key)}mcp/video/{video_id}?anvack={access_key}'
         server_time = self._server_time(access_key, video_id)
         input_data = '%d~%s~%s' % (server_time, md5_text(video_data_url), md5_text(server_time))
 

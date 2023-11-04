@@ -120,9 +120,7 @@ class FileDownloader:
         time = timetuple_from_msec(seconds * 1000)
         if time.hours > 99:
             return '--:--:--'
-        if not time.hours:
-            return '%02d:%02d' % time[1:-1]
-        return '%02d:%02d:%02d' % time[:-1]
+        return '%02d:%02d:%02d' % time[:-1] if time.hours else '%02d:%02d' % time[1:-1]
 
     format_eta = format_seconds
 
@@ -151,9 +149,7 @@ class FileDownloader:
     @staticmethod
     def calc_speed(start, now, bytes):
         dif = now - start
-        if bytes == 0 or dif < 0.001:  # One millisecond
-            return None
-        return float(bytes) / dif
+        return None if bytes == 0 or dif < 0.001 else float(bytes) / dif
 
     @staticmethod
     def format_speed(speed):
@@ -172,9 +168,7 @@ class FileDownloader:
         rate = bytes / elapsed_time
         if rate > new_max:
             return int(new_max)
-        if rate < new_min:
-            return int(new_min)
-        return int(rate)
+        return int(new_min) if rate < new_min else int(rate)
 
     @staticmethod
     def parse_bytes(bytestr):
@@ -205,17 +199,15 @@ class FileDownloader:
     def temp_name(self, filename):
         """Returns a temporary filename for the given filename."""
         if self.params.get('nopart', False) or filename == '-' or \
-                (os.path.exists(encodeFilename(filename)) and not os.path.isfile(encodeFilename(filename))):
+                    (os.path.exists(encodeFilename(filename)) and not os.path.isfile(encodeFilename(filename))):
             return filename
-        return filename + '.part'
+        return f'{filename}.part'
 
     def undo_temp_name(self, filename):
-        if filename.endswith('.part'):
-            return filename[:-len('.part')]
-        return filename
+        return filename[:-len('.part')] if filename.endswith('.part') else filename
 
     def ytdl_filename(self, filename):
-        return filename + '.ytdl'
+        return f'{filename}.ytdl'
 
     def wrap_file_access(action, *, fatal=False):
         def error_callback(err, count, retries, *, fd):
@@ -275,7 +267,7 @@ class FileDownloader:
 
     def report_destination(self, filename):
         """Report destination filename."""
-        self.to_screen('[download] Destination: ' + filename)
+        self.to_screen(f'[download] Destination: {filename}')
 
     def _prepare_multiline_status(self, lines=1):
         if self.params.get('noprogress'):
@@ -380,7 +372,7 @@ class FileDownloader:
 
     def report_resuming_byte(self, resume_len):
         """Report attempt to resume at given byte."""
-        self.to_screen('[download] Resuming download at byte %s' % resume_len)
+        self.to_screen(f'[download] Resuming download at byte {resume_len}')
 
     def report_retry(self, err, count, retries, frag_index=NO_DEFAULT, fatal=True):
         """Report retry"""
